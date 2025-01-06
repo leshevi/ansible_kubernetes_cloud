@@ -26,7 +26,7 @@ variables:
   ANSIBLE_ASK_PASS: 'False'
   ANSIBLE_NOCOWS: 1
   ANSIBLE_HOST_KEY_CHECKING: 'false'
-  ANSIBLE_BECOME_EXE: 'sudo su -'
+  ANSIBLE_BECOME_EXE: 'sudo -p "Password: " su -'
   DEPRECATION_WARNINGS: 'false'
   ANSIBLE_TIMEOUT: 30
 
