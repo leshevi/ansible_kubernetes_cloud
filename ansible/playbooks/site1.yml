@@ -1,0 +1,47 @@
+---
+- name: Configure master
+  hosts: managers
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Generate the Join Command
+      ansible.builtin.shell: |
+        set -o pipefail
+        cat /tmp/kubeadm_init.txt | tail -n 2 > /tmp/join-command.txt
+      args:
+        executable: /bin/bash
+        creates: /tmp/join-command.txt
+      changed_when: false
+      register: kuber_join
+      become: true
+
+    - name: Read file join-comand.txt
+      ansible.builtin.command: cat /tmp/join-command.txt
+      register: join_command
+      changed_when: false
+
+    - name: Show result content only
+      ansible.builtin.debug:
+        msg: "{{ join_command.stdout }}"
+
+- name: Configure Kubernetes Worker
+  hosts: workers
+  become: true
+  tasks:
+    - name: Show result content only
+      ansible.builtin.debug:
+        msg: "{{ hostvars[groups['managers'][0]]['join_command'].stdout }}"
+
+    - name: Create a file
+      ansible.builtin.shell: "{{ hostvars[groups['managers'][0]]['join_command'].stdout }} >> /tmp/join"
+      args:
+        creates: /tmp/join
+      changed_when: false
+
+    - name: Generate the Join Command
+      ansible.builtin.shell: sh /tmp/join
+      args:
+        executable: /bin/bash
+      changed_when: false
+      register: default_apport
+      failed_when: default_apport.rc !=0 and not default_apport.rc == 127
