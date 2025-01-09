@@ -19,19 +19,11 @@
       ansible.builtin.command: cat /tmp/join-command.txt
       register: join_command
       changed_when: false
-
-    - name: Show result content only
-      ansible.builtin.debug:
-        msg: "{{ join_command.stdout }}"
-
+   
 - name: Configure Kubernetes Worker
   hosts: workers
   become: true
   tasks:
-    - name: Show result content only
-      ansible.builtin.debug:
-        msg: "{{ hostvars[groups['managers'][0]]['join_command'].stdout }}"
-
     - name: Create a file
       ansible.builtin.shell: "{{ hostvars[groups['managers'][0]]['join_command'].stdout }} >> /tmp/join"
       args:
