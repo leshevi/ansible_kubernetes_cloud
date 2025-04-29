@@ -306,3 +306,16 @@
     - name: Taint master node to prevent workload scheduling
       ansible.builtin.shell: su - $ANSIBLE_USER -c "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
       changed_when: false
+
+    - name: Change a str
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^      bin_dir = "/usr/lib/cni"'
+        line: '      bin_dir = "/opt/cni/bin"'
+        owner: root
+        group: root
+
+    - name: Restart containerd service
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
